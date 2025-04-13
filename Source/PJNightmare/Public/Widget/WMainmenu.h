@@ -15,8 +15,11 @@ class PJNIGHTMARE_API UWMainmenu : public UUserWidget
 {
 	GENERATED_BODY()
 protected:
+	virtual bool Initialize() override;
 	UFUNCTION()
-	void OnSoloPlayClicked(); 
+	void OnSoloPlayClicked();
+	UFUNCTION()
+	void OnQuitClicked(); 
 
 private:
 	UPROPERTY(meta = (BindWidget, OptionalWidget = true))

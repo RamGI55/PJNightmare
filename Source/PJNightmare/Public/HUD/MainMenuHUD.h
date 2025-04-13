@@ -21,7 +21,7 @@ public:
 	void UIinScreen();
 
 	UPROPERTY(EditAnywhere)
-	UUserWidget* MainMenuWidget;
+	TObjectPtr<UUserWidget> MainMenuWidget;
 
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	TSubclassOf<UUserWidget> MainMenuHUDClass;

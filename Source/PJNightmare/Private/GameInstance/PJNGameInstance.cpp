@@ -3,6 +3,11 @@
 
 #include "GameInstance/PJNGameInstance.h"
 
+#include "Kismet/KismetSystemLibrary.h"
 
 
-
+void UPJNGameInstance::StartSoloGame()
+{
+	bSoloGame = true;
+	
+}

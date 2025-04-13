@@ -9,6 +9,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "Components/PlayerSkillComponent.h"
+#include "Components/PlayerStatComponets.h"
+#include "DataWrappers/ChaosVDQueryDataWrappers.h"
 
 
 // Sets default values
@@ -35,19 +38,29 @@ ABasePlayer::ABasePlayer()
 	CameraBoom->bUsePawnControlRotation = false;
 	
 	// input 
+#pragma region Input
+	
+#pragma endregion
+
+	StatComponent = CreateDefaultSubobject<UPlayerStatComponets>(TEXT("StatComponent"));
+	SkillComponent = CreateDefaultSubobject<UPlayerSkillComponent>(TEXT("SkillComponent"));
 	
 }
 
+void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+#pragma region Movements
 void ABasePlayer::Move(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
 	if (Controller != nullptr)
 	{
-		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator Rotation = GetControlRotation();
 		const FRotator YawRotation = FRotator(0.0f, Rotation.Yaw, 0.0f);
-
 		const FVector FowardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
 		const FVector RightDirection = FRotationMatrix(Rotation).GetUnitAxis(EAxis::Y);
 
 		AddMovementInput(FowardDirection, MovementVector.Y);
@@ -65,11 +78,72 @@ void ABasePlayer::Look(const FInputActionValue& Value)
 	}
 }
 
+#pragma region RPC
+
+void ABasePlayer::Server_Sprint_Implementation()
+{
+	Multi_Sprint(); 
+}
+
+void ABasePlayer::Multi_Sprint_Implementation()
+{
+	// Sprint function
+	if (Controller != nullptr)
+	{
+		StatComponent->SetSpeed(1250.f); // ?? 
+		GetCharacterMovement()->MaxWalkSpeed = StatComponent->GetSpeed();  
+	}
+}
+
+void ABasePlayer::ServerAiming_Implementation()
+{
+}
+
+void ABasePlayer::Multi_Aiming_Implementation()
+{
+}
+
+void ABasePlayer::Server_StopAiming_Implementation()
+{
+}
+
+void ABasePlayer::Multi_StopAiming_Implementation()
+{
+}
+
+void ABasePlayer::Server_Fire_Implementation()
+{
+}
+
+void ABasePlayer::Multi_Fire_Implementation()
+{
+}
+
+#pragma endregion 
+void ABasePlayer::Server_Dash_Implementation()
+{
+	Multi_Dash();
+}
+
+void ABasePlayer::Multi_Dash_Implementation()
+{
+	if (Controller != nullptr)
+	{
+		// Dash Logic here
+	}
+}
+
+
+#pragma endregion
+
+
+
+
 // Called when the game starts or when spawned
 void ABasePlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	StatComponent->Basicintialiser(); 
 }
 
 

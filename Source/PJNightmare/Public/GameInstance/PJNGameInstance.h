@@ -13,8 +13,11 @@ UCLASS()
 class PJNIGHTMARE_API UPJNGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
+
+	UFUNCTION()
+	void StartSoloGame(); 
 	
-	
-	
+	UPROPERTY()
+	bool bSoloGame;
 	
 };
