@@ -2,15 +2,22 @@
 
 
 #include "PlayerController/IngamePlayerController.h"
-
+#include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "Character/Player/BasePlayer.h"
 
+
+class UEnhancedInputLocalPlayerSubsystem;
 
 AIngamePlayerController::AIngamePlayerController()
 {
 
-	
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> DefaultMapping(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/PJNightmare/Inputs/IMC_IngameNonAuto.IMC_IngameNonAuto'"));
+	if (DefaultMapping.Succeeded())
+	{
+		IngameDefaultMapping = DefaultMapping.Object;
+	}
 }
 
 void AIngamePlayerController::BeginPlay()
@@ -25,47 +32,12 @@ void AIngamePlayerController::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 }
 
-/*void AIngamePlayerController::SetupInputComponent(class UIInputComponent* PlayerInputComponent)
+void AIngamePlayerController::GetMappings()
 {
-	Super::SetupInputComponent();
-
-	if (TObjectPtr<UEnhancedInputComponent> EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
+	// PlayerController
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(this->GetLocalPlayer()))
 	{
-		EnhancedInputComponent->BindAction(MovementInput, ETriggerEvent::Ongoing, this,&AIngamePlayerController::CallMove);
-		EnhancedInputComponent->BindAction(MovementInput, ETriggerEvent::Ongoing, this,&AIngamePlayerController::CallMove);
-		EnhancedInputComponent->BindAction(MovementInput, ETriggerEvent::Started,this,&AIngamePlayerController::CallSprint);
-	}
-}*/
-
-void AIngamePlayerController::CallMove(const FInputActionValue &Value)
-{
-	if (PossedPawn)
-	{
-		PossedPawn->Move(Value); 
-	}
-}
-
-void AIngamePlayerController::CallLook(const FInputActionValue& Value)
-{
-	if (PossedPawn)
-	{
-		PossedPawn->Look(Value);
-	}
-}
-
-void AIngamePlayerController::CallSprint()
-{
-	if (PossedPawn)
-	{
-		PossedPawn->Server_Sprint(); 
-	}
-}
-
-void AIngamePlayerController::CallDash()
-{
-	if (PossedPawn)
-	{
-		PossedPawn->Server_Dash();	
+		Subsystem->AddMappingContext(IngameDefaultMapping, 0);
 	}
 }
 

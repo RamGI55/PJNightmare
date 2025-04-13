@@ -2,16 +2,21 @@
 
 
 #include "Character/Player/BasePlayer.h"
+#include "Character/Player/BasePlayer.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Components/PlayerSkillComponent.h"
 #include "Components/PlayerStatComponets.h"
 #include "DataWrappers/ChaosVDQueryDataWrappers.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "InputMappingContext.h"
+#include "PlayerController/IngamePlayerController.h"
 
 
 // Sets default values
@@ -20,7 +25,7 @@ ABasePlayer::ABasePlayer()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
-
+	
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -29,7 +34,6 @@ ABasePlayer::ABasePlayer()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 300.f;
 	CameraBoom->bUsePawnControlRotation = true;
 
@@ -37,19 +41,49 @@ ABasePlayer::ABasePlayer()
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	CameraBoom->bUsePawnControlRotation = false;
 	
+	StatComponent = CreateDefaultSubobject<UPlayerStatComponets>(TEXT("PlayerStatComponent"));
+	SkillComponent = CreateDefaultSubobject<UPlayerSkillComponent>(TEXT("PlayerSkillComponent"));
+
+	CameraBoom->SetupAttachment(GetRootComponent());
+	Camera->SetupAttachment(CameraBoom);  
+	
+	
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> PlayerMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn'"));
+	if (PlayerMesh.Succeeded())
+	{
+		GetMesh()->SetSkeletalMesh(PlayerMesh.Object);
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
+		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+		GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+		
+	}
+
+	StatComponent->Basicintialiser();
+
+	PlayerController = Cast<AIngamePlayerController>(GetController());
+	if (PlayerController != nullptr)
+	{
+		PlayerController->GetMappings(); 
+	}
+	
 	// input 
 #pragma region Input
 	
+	
 #pragma endregion
 
-	StatComponent = CreateDefaultSubobject<UPlayerStatComponets>(TEXT("StatComponent"));
-	SkillComponent = CreateDefaultSubobject<UPlayerSkillComponent>(TEXT("SkillComponent"));
 	
 }
 
 void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInput->BindAction(IA_Move, ETriggerEvent::Triggered, this, &ABasePlayer::Move);
+		EnhancedInput->BindAction(IA_Look, ETriggerEvent::Triggered, this, &ABasePlayer::Look);
+			
+	}
 }
 
 #pragma region Movements

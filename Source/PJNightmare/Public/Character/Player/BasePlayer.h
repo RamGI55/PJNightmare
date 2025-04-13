@@ -19,7 +19,19 @@ class UInputAction;
 class UPlayerStatComponets;
 class UPlayerSkillComponent;
 class UVitalDmgComponents;
+class USkeletalMeshComponent;
 struct FInputActionValue; 
+UENUM(BlueprintType)
+enum class EArmed : uint8
+{
+	Unarmed,
+	Autoarmed,
+	Semiarmed,
+	Meleearmed,
+	OnVehicle,
+	
+};
+
 UCLASS()
 class PJNIGHTMARE_API ABasePlayer : public ACharacter
 {
@@ -102,7 +114,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr <UAnimMontage> FaintedMontage;
 #pragma endregion
-
 	
 private:
 	UPROPERTY()
@@ -116,7 +127,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent> Camera;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> JumpAction;
 	
@@ -127,6 +138,12 @@ private:
 	TObjectPtr<UInputAction> LookAction;
 
 #pragma region Input
+	UPROPERTY()
+	TObjectPtr<UInputMappingContext> InputContext;
+	
+	UPROPERTY(EditAnywhere, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputMappingContext> InputMapping;
+	
 	UPROPERTY()
 	TObjectPtr<AIngamePlayerController> PlayerController; 
 		
@@ -164,6 +181,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UPlayerSkillComponent> PlayerSkillComponent;
+
+	
 	
 #pragma endregion
 };

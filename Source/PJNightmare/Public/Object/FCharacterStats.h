@@ -17,6 +17,7 @@ USTRUCT(BlueprintType)
 struct FPlayerStat : public FTableRowBase
 {
 	GENERATED_BODY()
+	/*
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
 	EPlayerClass PlayerClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
@@ -37,6 +38,7 @@ struct FPlayerStat : public FTableRowBase
 	float fSubSkillGauge;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
 	float fUltSkillGauge;
+	*/
 	
 };
 UCLASS()

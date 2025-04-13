@@ -11,7 +11,8 @@
  */
 
 class ABasePlayer; 
-class UInputAction; 
+class UInputAction;
+class UInputMappingContext; 
 struct FInputActionValue;
 
 UCLASS()
@@ -24,26 +25,17 @@ public:
 virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
-	
+
+	UFUNCTION()
+	void GetMappings(); 
 protected:
 	
 	/*virtual void SetupInputComponent(class UIInputComponent* PlayerInputComponent);*/
 
-	UFUNCTION()
-	void CallMove(const FInputActionValue &Value);
-
-	UFUNCTION()
-	void CallLook(const FInputActionValue &Value);
-
-	UFUNCTION()
-	void CallSprint();
-
-	UFUNCTION()
-	void CallDash(); 
 
 public:
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UInputAction> MovementInput;
+	UPROPERTY()
+	UInputMappingContext* IngameDefaultMapping; 
 	
 protected:
 	UPROPERTY(EditAnywhere)
@@ -52,3 +44,4 @@ protected:
 	UPROPERTY(EditAnywhere)
 	ABasePlayer* PossedPawn; 
 };
+
