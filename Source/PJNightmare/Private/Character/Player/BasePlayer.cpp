@@ -116,7 +116,7 @@ void ABasePlayer::Look(const FInputActionValue& Value)
 
 void ABasePlayer::Server_Sprint_Implementation()
 {
-	Multi_Sprint(); 
+	Multi_Sprint();
 }
 
 void ABasePlayer::Multi_Sprint_Implementation()
