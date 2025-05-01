@@ -26,12 +26,19 @@ protected:
 
 private:
 	virtual bool Initialize() override;
+	virtual void NativeDestruct() override;
 
-	
 public:
 
 protected:
-
+	UFUNCTION()
+	void OnCreateSession(bool bWasSuccessful);
+	void OnFindingSession(const TArray<FOnlineSessionSearchResult>& SessionResult, bool bWasSuccessful);
+	void OnJoinSession(EOnJoinSessionCompleteResult::Type Result);
+	UFUNCTION()
+	void OnDestroySession(bool bWasSuccessful);
+	UFUNCTION()
+	void OnStartSession(bool bWasSuccessful);
 private:
 	// The subsystem designed to handle all online session functionality.
 	TObjectPtr<UMPPluginSubSystem> MultiplayerSessionSubsystem;

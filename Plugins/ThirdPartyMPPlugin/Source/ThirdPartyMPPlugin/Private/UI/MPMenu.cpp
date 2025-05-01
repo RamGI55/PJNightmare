@@ -3,6 +3,8 @@
 
 #include "UI/MPMenu.h"
 #include "Components/Button.h"
+#include "OnlineSessionSettings.h"
+#include "Interfaces/OnlineSessionInterface.h" 
 #include "ThirdPartyMPPlugin.h"
 
 void UMPMenu::MenuSetup()
@@ -37,27 +39,23 @@ void UMPMenu::MenuSetup()
 	{
 		MultiplayerSessionSubsystem = GameInstance->GetSubsystem<UMPPluginSubSystem>(); 
 	}
+	if (MultiplayerSessionSubsystem)
+	{
+		MultiplayerSessionSubsystem->MultiplayerOnCreateSessionComplete.AddDynamic(this, &ThisClass::OnCreateSession);
+		MultiplayerSessionSubsystem->MultiplayerOnFindSessionComplete.AddUObject(this, &ThisClass::OnFindingSession);
+		MultiplayerSessionSubsystem->MultiplayerOnJoinSessionComplete.AddUObject(this, &ThisClass::OnJoinSession);
+		MultiplayerSessionSubsystem->MultiplayerOnDestorySessionComplete.AddDynamic(this, &ThisClass::OnDestroySession);
+		MultiplayerSessionSubsystem->MultiplayerOnStartSessionComplete.AddDynamic(this,&ThisClass::OnStartSession);
+	}
 }
 
 void UMPMenu::HostButtonClicked()
 {
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1,
-			15.0f,
-			FColor::Yellow,
-			"Hosting button pressed");
-	}
+	
 	if (MultiplayerSessionSubsystem)
 	{
 		MultiplayerSessionSubsystem->CreateSession(4, FString("FreeForAll"));
-		// Travel Logic.
-		UWorld* World = GetWorld();
-		if (World)
-		{
-			World->ServerTravel("/Script/Engine.World'/Game/PJNightmare/TestMaps/ShootingRange.ShootingRange'");
-			// Temporary Site -> heading to the shooting range. 
-		}
+	
 	}
 }
 
@@ -90,4 +88,58 @@ bool UMPMenu::Initialize()
 	}
 	return true; 
 	
+}
+
+void UMPMenu::NativeDestruct()
+{
+	Super::NativeDestruct();
+}
+
+void UMPMenu::OnCreateSession(bool bWasSuccessful)
+ {
+	// Callback Function
+	if (bWasSuccessful)
+	{
+		// If the session is created, then we can travel to the map. 
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1,
+				15.0f,
+				FColor::Green,
+				FString::Printf(TEXT("Session Created Successfully")));
+		}
+		// Travel Logic.
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			World->ServerTravel("/Game/PJNightmare/TestMaps/ShootingRange.ShootingRange?listen");
+		}
+		
+	}
+	else
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1,
+				15.0f,
+				FColor::Red,
+				FString::Printf(TEXT("Session Created Failed")));
+		}
+	}
+ }
+
+void UMPMenu::OnFindingSession(const TArray<FOnlineSessionSearchResult>& SessionResult, bool bWasSuccessful)
+{
+}
+
+void UMPMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
+{
+}
+
+void UMPMenu::OnDestroySession(bool bWasSuccessful)
+{
+}
+
+void UMPMenu::OnStartSession(bool bWasSuccessful)
+{
 }

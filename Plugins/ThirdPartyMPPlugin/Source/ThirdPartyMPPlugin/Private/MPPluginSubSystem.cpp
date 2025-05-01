@@ -32,8 +32,9 @@ void UMPPluginSubSystem::CreateSession(int32 NumbPublicConnections, FString Matc
 	if (ExistingSession != nullptr)
 	{
 		OnlineSessionInterface->DestroySession(NAME_GameSession);
+		return; 
 	}
-	OnlineSessionInterface->AddOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegate);
+	CreateSessionCompleteDelegateHandle = OnlineSessionInterface->AddOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegate);
 
 	TSharedPtr<FOnlineSessionSettings> RecentSessionSettings = MakeShareable(new FOnlineSessionSettings());
 	
@@ -44,14 +45,16 @@ void UMPPluginSubSystem::CreateSession(int32 NumbPublicConnections, FString Matc
 	RecentSessionSettings->bShouldAdvertise = true;
 	RecentSessionSettings->bUsesPresence = true;
 	RecentSessionSettings->Set(FName("MatchType"), MatchType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	RecentSessionSettings->bUseLobbiesIfAvailable = true;
 
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	// brought the local player from the controller
-	OnlineSessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *RecentSessionSettings); 
+	// OnlineSessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *RecentSessionSettings); 
 
 	if (!OnlineSessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *RecentSessionSettings))
 	{
-		OnlineSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegateHandle); 
+		OnlineSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegateHandle);
+		MultiplayerOnCreateSessionComplete.Broadcast (false); 
 	}
 }
 
@@ -75,6 +78,14 @@ void UMPPluginSubSystem::StartSession()
 
 void UMPPluginSubSystem::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
 {
+	if (OnlineSessionInterface)
+	{
+		OnlineSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegateHandle);
+		// Start the session
+		OnlineSessionInterface->StartSession(SessionName);
+	}
+	MultiplayerOnCreateSessionComplete.Broadcast(bWasSuccessful);
+
 }
 
 void UMPPluginSubSystem::OnFindSessionsComplete(bool bWasSuccessful)
@@ -92,3 +103,4 @@ void UMPPluginSubSystem::OnDestroySessionComplete(FName SessionName, bool bWasSu
 void UMPPluginSubSystem::OnStartSessionComplete(FName SessionName, bool bWasSuccessful)
 {
 }
+
