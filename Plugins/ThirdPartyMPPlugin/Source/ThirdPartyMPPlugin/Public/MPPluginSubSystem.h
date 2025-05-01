@@ -35,6 +35,7 @@ protected:
 	
 
 private:
+	
 	IOnlineSessionPtr OnlineSessionInterface;
 
 	// Online session interface delegate lists.
