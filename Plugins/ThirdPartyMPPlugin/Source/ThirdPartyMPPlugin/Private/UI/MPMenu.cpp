@@ -135,12 +135,29 @@ void UMPMenu::OnCreateSession(bool bWasSuccessful)
 
 void UMPMenu::OnFindingSession(const TArray<FOnlineSessionSearchResult>& SessionResult, bool bWasSuccessful)
 {
+	if (!bWasSuccessful || SessionResult.Num() == 0)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, 
+				FString::Printf(TEXT("Find Sessions Failed or No Sessions Found")));
+		}
+		return;
+	}
+	
 	if (MultiplayerSessionSubsystem == nullptr)
 	{
 		return; 
 	}
+
+	// for debug for information 
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, 
+			FString::Printf(TEXT("Found %d sessions"), SessionResult.Num()));
+	}
 	
-	for (auto Result : SessionResult)
+	for (auto Result : SessionResult) 
 	{
 		FString SettingsValue; 
 		Result.Session.SessionSettings.Get(FName("MatchType"), SettingsValue);
@@ -150,10 +167,23 @@ void UMPMenu::OnFindingSession(const TArray<FOnlineSessionSearchResult>& Session
 			return; 
 		}
 	}
+	// If we got here, we didn't find a matching session
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, 
+			FString::Printf(TEXT("No matching session with MatchType: %s"), *MatchType));
+	}
 }
 
 void UMPMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 {
+	if (Result!=EOnJoinSessionCompleteResult::Success)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1,15.0f,FColor::Red, FString::Printf(TEXT("Session Created Failed")));
+		}
+	}
 	IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
 	if (OnlineSubsystem)
 	{
@@ -161,7 +191,28 @@ void UMPMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 		if (OnlineSessionInterface.IsValid())
 		{
 			FString Address;
-			OnlineSessionInterface->GetResolvedConnectString(NAME_GameSession, Address);
+			if (OnlineSessionInterface->GetResolvedConnectString(NAME_GameSession, Address))
+			{
+				if (GEngine)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, 
+						FString::Printf(TEXT("Join Session Success. Connect String: %s"), *Address));
+				}
+				APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+				if (PlayerController)
+				{
+					PlayerController->ClientTravel(Address, TRAVEL_Absolute);
+				}
+			}
+			else
+			{
+				if (GEngine)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, 
+						TEXT("Failed to get connect string"));
+				}
+				
+			}
 		}
 	}
 }
