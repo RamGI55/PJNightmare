@@ -9,11 +9,12 @@
 
 AMainMenuHUD::AMainMenuHUD()
 {
-	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClassFinder(TEXT("/Game/PJNightmare/UI/Menu/WB_MainMenu.WB_MainMenu"));
+	/*static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClassFinder(TEXT("/Game/PJNightmare/UI/Menu/WB_MainMenu.WB_MainMenu"));
 	if (WidgetClassFinder.Succeeded())
 	{
 		MainMenuHUDClass = WidgetClassFinder.Class;  
-	}
+	}*/
+	// Main Menu doesn't work yet. (CDO Error ) 
 }
 
 void AMainMenuHUD::UIinScreen()

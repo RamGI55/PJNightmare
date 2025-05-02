@@ -4,7 +4,8 @@
 #include "UI/MPMenu.h"
 #include "Components/Button.h"
 #include "OnlineSessionSettings.h"
-#include "Interfaces/OnlineSessionInterface.h" 
+#include "Interfaces/OnlineSessionInterface.h"
+#include "OnlineSubsystem.h"
 #include "ThirdPartyMPPlugin.h"
 
 void UMPMenu::MenuSetup()
@@ -68,6 +69,10 @@ void UMPMenu::JoinSessionClicked()
 			FColor::Yellow,
 			"Join button pressed");
 	}
+	if (MultiplayerSessionSubsystem)
+	{
+		MultiplayerSessionSubsystem->FindSession(10000);
+	}
 }
 
 bool UMPMenu::Initialize()
@@ -130,10 +135,35 @@ void UMPMenu::OnCreateSession(bool bWasSuccessful)
 
 void UMPMenu::OnFindingSession(const TArray<FOnlineSessionSearchResult>& SessionResult, bool bWasSuccessful)
 {
+	if (MultiplayerSessionSubsystem == nullptr)
+	{
+		return; 
+	}
+	
+	for (auto Result : SessionResult)
+	{
+		FString SettingsValue; 
+		Result.Session.SessionSettings.Get(FName("MatchType"), SettingsValue);
+		if (SettingsValue == MatchType)
+		{
+			MultiplayerSessionSubsystem->JoinSession(Result);
+			return; 
+		}
+	}
 }
 
 void UMPMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 {
+	IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
+	if (OnlineSubsystem)
+	{
+		IOnlineSessionPtr OnlineSessionInterface = OnlineSubsystem->GetSessionInterface();
+		if (OnlineSessionInterface.IsValid())
+		{
+			FString Address;
+			OnlineSessionInterface->GetResolvedConnectString(NAME_GameSession, Address);
+		}
+	}
 }
 
 void UMPMenu::OnDestroySession(bool bWasSuccessful)

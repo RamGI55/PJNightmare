@@ -52,7 +52,7 @@ protected:
 private:
 	
 	IOnlineSessionPtr OnlineSessionInterface;
-
+	TSharedPtr<FOnlineSessionSearch> RecentSessionSearch;
 	// Online session interface delegate lists.
 	// TODO:: bind our mutiplayersession delegate to the internal callback to these
 	

@@ -2,6 +2,7 @@
 
 
 #include "MPPluginSubSystem.h"
+#include "Online/OnlineSessionNames.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
 
@@ -46,6 +47,7 @@ void UMPPluginSubSystem::CreateSession(int32 NumbPublicConnections, FString Matc
 	RecentSessionSettings->bUsesPresence = true;
 	RecentSessionSettings->Set(FName("MatchType"), MatchType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	RecentSessionSettings->bUseLobbiesIfAvailable = true;
+	RecentSessionSettings->BuildUniqueId = 1; 
 
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	// brought the local player from the controller
@@ -60,10 +62,45 @@ void UMPPluginSubSystem::CreateSession(int32 NumbPublicConnections, FString Matc
 
 void UMPPluginSubSystem::FindSession(int32 MaxSearchResults)
 {
+	if (!OnlineSessionInterface.IsValid())
+	{
+		return;
+	}
+	FindSessionsCompleteDelegateHandle = OnlineSessionInterface->AddOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegate);
+	RecentSessionSearch = MakeShareable(new FOnlineSessionSearch());
+	RecentSessionSearch->MaxSearchResults = MaxSearchResults;
+	RecentSessionSearch->bIsLanQuery=IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? false : true;
+	RecentSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+
+	const ULocalPlayer* LocalPlayer =GetWorld()->GetFirstLocalPlayerFromController();
+	if (!OnlineSessionInterface->FindSessions(*LocalPlayer->GetPreferredUniqueNetId(), RecentSessionSearch.ToSharedRef()))
+	{
+		OnlineSessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegateHandle);
+
+		MultiplayerOnFindSessionComplete.Broadcast(TArray<FOnlineSessionSearchResult>(), false); 
+	}
+	
+	
 }
+
 
 void UMPPluginSubSystem::JoinSession(const FOnlineSessionSearchResult& SessionResult)
 {
+	if (!OnlineSessionInterface.IsValid())
+	{
+		MultiplayerOnJoinSessionComplete.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
+		return;
+	}
+
+	JoinSessionCompleteDelegateHandle = OnlineSessionInterface->AddOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegate);
+
+	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+	if (OnlineSessionInterface->JoinSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, SessionResult))
+	{
+		OnlineSessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegateHandle);
+
+		MultiplayerOnJoinSessionComplete.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
+	}
 }
 
 void UMPPluginSubSystem::DestroySession()
@@ -72,6 +109,17 @@ void UMPPluginSubSystem::DestroySession()
 
 void UMPPluginSubSystem::StartSession()
 {
+	/*if (!OnlineSessionInterface.IsValid())
+	{
+		 MultiplayerOnStartSessionComplete.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
+		return; 
+	}
+	StartSessionCompleteDelegateHandle = OnlineSessionInterface->AddOnStartSessionCompleteDelegate_Handle(StartSessionCompleteDelegate);
+	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+	if (OnlineSessionInterface->StartSession(NAME_GameSession))
+	{
+		// can join in progress 
+	}*/
 }
 
 #pragma endregion
@@ -90,10 +138,24 @@ void UMPPluginSubSystem::OnCreateSessionComplete(FName SessionName, bool bWasSuc
 
 void UMPPluginSubSystem::OnFindSessionsComplete(bool bWasSuccessful)
 {
+	if (OnlineSessionInterface)
+	{
+		OnlineSessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(CreateSessionCompleteDelegateHandle);
+	}
+	if (RecentSessionSearch->SearchResults.Num() <= 0)
+	{
+		MultiplayerOnFindSessionComplete.Broadcast(TArray<FOnlineSessionSearchResult>(), false); 
+	}
+	MultiplayerOnFindSessionComplete.Broadcast(RecentSessionSearch->SearchResults, bWasSuccessful);
 }
 
 void UMPPluginSubSystem::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
+	if (OnlineSessionInterface)
+	{
+		OnlineSessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegateHandle);
+	}
+	MultiplayerOnJoinSessionComplete.Broadcast(Result);
 }
 
 void UMPPluginSubSystem::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)
@@ -102,5 +164,10 @@ void UMPPluginSubSystem::OnDestroySessionComplete(FName SessionName, bool bWasSu
 
 void UMPPluginSubSystem::OnStartSessionComplete(FName SessionName, bool bWasSuccessful)
 {
+	/*if (OnlineSessionInterface)
+	{
+		OnlineSessionInterface->ClearOnStartSessionCompleteDelegate_Handle(CreateSessionCompleteDelegateHandle);
+	}
+	MultiplayerOnStartSessionComplete.Broadcast(bWasSuccessful);*/
 }
 

@@ -51,4 +51,7 @@ private:
 
 	UPROPERTY (meta = (BindWidget))
 	TObjectPtr<UButton> Exit_TEMP;
+
+	int32 NumPublicConnections{12};
+	FString MatchType {TEXT("FreeForAll")};
 };
