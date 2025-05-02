@@ -16,7 +16,7 @@ class THIRDPARTYMPPLUGIN_API UMPMenu : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void MenuSetup();
+	void MenuSetup(int32 NumberOfPublicConnections, FString TypeofMatch, FString LobbyPath);
 	
 protected:
 	UFUNCTION()
@@ -54,4 +54,5 @@ private:
 
 	int32 NumPublicConnections{12};
 	FString MatchType {TEXT("FreeForAll")};
+	FString PathToLobby {TEXT("")};
 };

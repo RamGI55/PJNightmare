@@ -40,7 +40,7 @@ void ALobbyGameMode::PostLogin(APlayerController* aPlayerController)
 void ALobbyGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
-	APlayerState* PlayerState =Exiting->GetPlayerState<APlayerState>();
+	APlayerState* PlayerState = Exiting->GetPlayerState<APlayerState>();
 	if (GEngine)
 	{
 		FString PlayerName = PlayerState->GetPlayerName();

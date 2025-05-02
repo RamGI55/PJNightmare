@@ -47,12 +47,11 @@ ABasePlayer::ABasePlayer()
 	CameraBoom->SetupAttachment(GetRootComponent());
 	Camera->SetupAttachment(CameraBoom);  
 	
-	
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> PlayerMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn'"));
 	if (PlayerMesh.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(PlayerMesh.Object);
-		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
 		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 		GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
 		
@@ -82,7 +81,7 @@ void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	{
 		EnhancedInput->BindAction(IA_Move, ETriggerEvent::Triggered, this, &ABasePlayer::Move);
 		EnhancedInput->BindAction(IA_Look, ETriggerEvent::Triggered, this, &ABasePlayer::Look);
-			
+		EnhancedInput->BindAction(IA_Dash, ETriggerEvent::Triggered , this , &ABasePlayer::Server_Dash);	
 	}
 }
 

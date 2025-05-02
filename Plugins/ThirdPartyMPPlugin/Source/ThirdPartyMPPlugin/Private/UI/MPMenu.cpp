@@ -8,8 +8,11 @@
 #include "OnlineSubsystem.h"
 #include "ThirdPartyMPPlugin.h"
 
-void UMPMenu::MenuSetup()
-{
+void UMPMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeofMatch, FString LobbyPath)
+
+{	MatchType = TypeofMatch;
+	NumberOfPublicConnections = NumberOfPublicConnections;
+	PathToLobby = FString::Printf(TEXT("%s?listen"), *LobbyPath, *MatchType);
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
 	// This sets the visibility of the widget. 
@@ -114,12 +117,22 @@ void UMPMenu::OnCreateSession(bool bWasSuccessful)
 				FString::Printf(TEXT("Session Created Successfully")));
 		}
 		// Travel Logic.
+		FTimerHandle TravelTimerHandle; 
 		UWorld* World = GetWorld();
-		if (World)
+		/*if (World)
 		{
-			World->ServerTravel("/Game/PJNightmare/TestMaps/ShootingRange.ShootingRange?listen");
-		}
-		
+			World->ServerTravel("/Game/PJNightmare/TestMaps/ShootingRange?listen");
+		}*/
+		World->GetTimerManager().SetTimer(
+			   TravelTimerHandle, 
+			   [World]()
+			   {
+				   World->ServerTravel("/Game/PJNightmare/TestMaps/ShootingRange?listen");
+			   },
+			   0.5f,  // Half second delay
+			   false
+		   );
+		FInputModeGameOnly InputClient;
 	}
 	else
 	{
