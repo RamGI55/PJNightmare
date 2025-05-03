@@ -7,6 +7,7 @@
 #include "BasePlayer.generated.h"
 
 
+class UPlayerMovementComponent;
 class AIngamePlayerController;
 class UPlayerStatComponets; 
 class UPlayerSkillComponent;
@@ -154,22 +155,22 @@ private:
 	TObjectPtr<UInputMappingContext> IC_Character;
 
 	UPROPERTY()
-	TObjectPtr<UInputAction> IA_Move;
+	TObjectPtr<UInputAction> MovementAction;
 
 	UPROPERTY()
-	TObjectPtr<UInputAction> IA_Zoom;
+	TObjectPtr<UInputAction> ZoomAction;
 
 	UPROPERTY()
-	TObjectPtr<UInputAction> IA_Dash;
+	TObjectPtr<UInputAction> DashAction;
 	
 	UPROPERTY()
-	TObjectPtr<UInputAction> IA_Attack;
+	TObjectPtr<UInputAction> AttackAction;
 
 	UPROPERTY()
-	TObjectPtr<UInputAction> IA_Look;
+	TObjectPtr<UInputAction> LookingAction;
 
 	UPROPERTY()
-	TObjectPtr<UInputAction> IA_Run; 
+	TObjectPtr<UInputAction> RunningAction; 
 #pragma endregion
 
 #pragma region Components
@@ -182,7 +183,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UPlayerSkillComponent> PlayerSkillComponent;
 
-	
+	UPROPERTY()
+	TObjectPtr<UEnhancedInputComponent> EnhancedInputComponent;
+
 	
 #pragma endregion
 };

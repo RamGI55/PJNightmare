@@ -54,7 +54,6 @@ ABasePlayer::ABasePlayer()
 		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
 		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 		GetMesh()->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
-		
 	}
 
 	StatComponent->Basicintialiser();
@@ -65,23 +64,32 @@ ABasePlayer::ABasePlayer()
 		PlayerController->GetMappings(); 
 	}
 	
-	// input 
+	// input
+	EnhancedInputComponent = Cast<UEnhancedInputComponent>(this->InputComponent); 
 #pragma region Input
-	
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Move = (TEXT("'/Game/PJNightmare/Inputs/Actions/IA_Move'"));
+	if (IA_Move.Object) MovementAction = IA_Move.Object;
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Zoom = (TEXT("'/Game/PJNightmare/Inputs/Actions/IA_Zoom'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Look = (TEXT("/'/Game/PJNightmare/Inputs/Actions/IA_Look'"));
+	if (IA_Look.Object) LookingAction = IA_Look.Object;
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Dash = (TEXT("'/Game/PJNightmare/Inputs/Actions/IA_Dash'"));
+	if (IA_Dash.Object) DashAction = IA_Dash.Object;
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Run = (TEXT("'/Game/PJNightmare/Inputs/Actions/IA_Run'"));
+	if (IA_Run.Object) RunningAction = IA_Run.Object;
 	
 #pragma endregion
-
-	
 }
+
 
 void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	if (EnhancedInputComponent)
 	{
-		EnhancedInput->BindAction(IA_Move, ETriggerEvent::Triggered, this, &ABasePlayer::Move);
-		EnhancedInput->BindAction(IA_Look, ETriggerEvent::Triggered, this, &ABasePlayer::Look);
-		EnhancedInput->BindAction(IA_Dash, ETriggerEvent::Triggered , this , &ABasePlayer::Server_Dash);	
+		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &ABasePlayer::Move);
+		EnhancedInputComponent->BindAction(LookingAction, ETriggerEvent::Triggered, this, &ABasePlayer::Look);
+		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered , this , &ABasePlayer::Server_Dash);	
+		EnhancedInputComponent->BindAction(RunningAction, ETriggerEvent::Triggered, this, &ABasePlayer::Server_Sprint);
 	}
 }
 
