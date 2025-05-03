@@ -127,7 +127,7 @@ void ABasePlayer::Multi_Sprint_Implementation()
 		GetCharacterMovement()->MaxWalkSpeed = StatComponent->GetSpeed();  
 	}
 }
-
+// This Aiming system must move to the shooting or other components. 
 void ABasePlayer::ServerAiming_Implementation()
 {
 }
