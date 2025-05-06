@@ -11,63 +11,11 @@
 class UEnhancedInputLocalPlayerSubsystem;
 
 AIngamePlayerController::AIngamePlayerController()
-	:IC_DefaultContext(NULL),
-	MovingAction(NULL),
-	ZoomAction(NULL),
-	DashAction(NULL),
-	AttackAction(NULL),
-	LookingAction(NULL),
-	RunningAction(NULL)
+
 {
 	
 }
 
-void AIngamePlayerController::BeginPlay()
-{
-	Super::BeginPlay();
-	/*if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem=
-			LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
-		{
-			if (IC_DefaultContext)
-			{
-				Subsystem->AddMappingContext(IC_DefaultContext, 0); 
-			}
-		}
-	}*/
-
-}
-
-void AIngamePlayerController::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-}
-
-void AIngamePlayerController::OnPossess(APawn* InPawn)
-{
-	Super::OnPossess(InPawn);
-	
-		UE_LOG(LogTemp, Warning, TEXT("OnPossess: Pawn is Ready"));
-	
-		if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
-		{
-			if (UEnhancedInputLocalPlayerSubsystem* Subsystem=
-				LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
-			{
-				if (IC_DefaultContext)
-				{
-					Subsystem->AddMappingContext(IC_DefaultContext, 0); 
-				}
-			}
-		}
-
-}
-
-void AIngamePlayerController::SetupInputBinding()
-{
-	
-}
 
 
 
