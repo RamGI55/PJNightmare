@@ -2,8 +2,6 @@
 
 
 #include "Character/Player/BasePlayer.h"
-#include "Character/Player/BasePlayer.h"
-
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -32,22 +30,26 @@ ABasePlayer::ABasePlayer()
 
 	// character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.f, 0.0f); 
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->TargetArmLength = 300.f;
+	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->bUsePawnControlRotation = true;
 
+	GetCharacterMovement()->MaxWalkSpeed =600.f;
+	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
+	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
+	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowingCamera"));
-	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); 
 	CameraBoom->bUsePawnControlRotation = false;
 	
 	StatComponent = CreateDefaultSubobject<UPlayerStatComponets>(TEXT("PlayerStatComponent"));
 	SkillComponent = CreateDefaultSubobject<UPlayerSkillComponent>(TEXT("PlayerSkillComponent"));
-
-	CameraBoom->SetupAttachment(GetRootComponent());
-	Camera->SetupAttachment(CameraBoom);  
 	
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> PlayerMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn'"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> PlayerMesh(TEXT("'/Game/Characters/Mannequins/Meshes/SKM_Quinn'"));
 	if (PlayerMesh.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(PlayerMesh.Object);
@@ -57,55 +59,55 @@ ABasePlayer::ABasePlayer()
 	}
 
 	StatComponent->Basicintialiser();
-
-	PlayerController = Cast<AIngamePlayerController>(GetController());
-	if (PlayerController != nullptr)
-	{
-		PlayerController->GetMappings(); 
-	}
-	
 	// input
-	EnhancedInputComponent = Cast<UEnhancedInputComponent>(this->InputComponent); 
-#pragma region Input
-	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Move = (TEXT("'/Game/PJNightmare/Inputs/Actions/IA_Move'"));
-	if (IA_Move.Object) MovementAction = IA_Move.Object;
-	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Zoom = (TEXT("'/Game/PJNightmare/Inputs/Actions/IA_Zoom'"));
-	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Look = (TEXT("/'/Game/PJNightmare/Inputs/Actions/IA_Look'"));
-	if (IA_Look.Object) LookingAction = IA_Look.Object;
-	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Dash = (TEXT("'/Game/PJNightmare/Inputs/Actions/IA_Dash'"));
-	if (IA_Dash.Object) DashAction = IA_Dash.Object;
-	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Run = (TEXT("'/Game/PJNightmare/Inputs/Actions/IA_Run'"));
-	if (IA_Run.Object) RunningAction = IA_Run.Object;
 	
-#pragma endregion
+#pragma region Input
+	
 }
+#pragma endregion
+
 
 
 void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	if (EnhancedInputComponent)
+if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+{
+	if (AIngamePlayerController* PlayerController = Cast<AIngamePlayerController>(GetController()))
 	{
-		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &ABasePlayer::Move);
-		EnhancedInputComponent->BindAction(LookingAction, ETriggerEvent::Triggered, this, &ABasePlayer::Look);
-		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered , this , &ABasePlayer::Server_Dash);	
-		EnhancedInputComponent->BindAction(RunningAction, ETriggerEvent::Triggered, this, &ABasePlayer::Server_Sprint);
+		 if (PlayerController->MovingAction)
+		 {
+			 EnhancedInput->BindAction(PlayerController->MovingAction, ETriggerEvent::Triggered, this, &ABasePlayer::Move); 
+		 }
+		if (PlayerController->LookingAction)
+		{
+			EnhancedInput->BindAction(PlayerController->LookingAction, ETriggerEvent::Triggered, this, &ABasePlayer::Look);
+		}
+		if (PlayerController->RunningAction)
+		{
+			EnhancedInput->BindAction(PlayerController->RunningAction, ETriggerEvent::Triggered, this, &ABasePlayer::Server_Sprint); 
+		}
 	}
+}
+	
 }
 
 #pragma region Movements
 void ABasePlayer::Move(const FInputActionValue& Value)
 {
+	if (Controller == nullptr) return;
 	FVector2D MovementVector = Value.Get<FVector2D>();
-	if (Controller != nullptr)
+	
+	const FRotator Rotation = GetControlRotation();
+	const FRotator YawRotation = FRotator(0.0f, Rotation.Yaw, 0.0f);
+	if (!FMath::IsNearlyZero(MovementVector.X))
 	{
-		const FRotator Rotation = GetControlRotation();
-		const FRotator YawRotation = FRotator(0.0f, Rotation.Yaw, 0.0f);
-		const FVector FowardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		const FVector RightDirection = FRotationMatrix(Rotation).GetUnitAxis(EAxis::Y);
-
-		AddMovementInput(FowardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
+		AddMovementInput(GetActorForwardVector(), MovementVector.X);
+	}
+	if (!FMath::IsNearlyZero(MovementVector.Y))
+	{
+		AddMovementInput(GetActorRightVector(), MovementVector.Y);
+		
 	}
 }
 
@@ -119,6 +121,8 @@ void ABasePlayer::Look(const FInputActionValue& Value)
 	}
 }
 
+
+
 #pragma region RPC
 
 void ABasePlayer::Server_Sprint_Implementation()
@@ -129,10 +133,24 @@ void ABasePlayer::Server_Sprint_Implementation()
 void ABasePlayer::Multi_Sprint_Implementation()
 {
 	// Sprint function
-	if (Controller != nullptr)
+	if (StatComponent != nullptr)
 	{
-		StatComponent->SetSpeed(1250.f); // ?? 
+		StatComponent->SetSpeed(1250.f); // should make it as the variables. 
 		GetCharacterMovement()->MaxWalkSpeed = StatComponent->GetSpeed();  
+	}
+}
+
+void ABasePlayer::Server_StopSprint_Implementation()
+{
+	Multi_StopSprint();
+}
+
+void ABasePlayer::Multi_StopSprint_Implementation()
+{
+	if (StatComponent != nullptr)
+	{
+		StatComponent->SetSpeed(600.f);
+		GetCharacterMovement()-> MaxWalkSpeed = StatComponent->GetSpeed();
 	}
 }
 // This Aiming system must move to the shooting or other components. 
@@ -178,13 +196,43 @@ void ABasePlayer::Multi_Dash_Implementation()
 #pragma endregion
 
 
-
-
 // Called when the game starts or when spawned
 void ABasePlayer::BeginPlay()
 {
+	if (!IsLocallyControlled())
+	{
+		return; 
+	}
+	
 	Super::BeginPlay();
-	StatComponent->Basicintialiser(); 
+	StatComponent->Basicintialiser();
+	/*FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &ABasePlayer::SetEnhancedInput, .3f, false);*/
+	DebugMovementStatus();
+	
 }
+
+void ABasePlayer::DebugMovementStatus()
+{
+	UE_LOG(LogTemp, Warning, TEXT("--- Character Movement Debug Info ---"));
+	UE_LOG(LogTemp, Warning, TEXT("Character: %s"), *GetName());
+	UE_LOG(LogTemp, Warning, TEXT("Network Role: %d"), GetLocalRole());
+	UE_LOG(LogTemp, Warning, TEXT("Is Locally Controlled: %s"), IsLocallyControlled() ? TEXT("Yes") : TEXT("No"));
+	UE_LOG(LogTemp, Warning, TEXT("Controller: %s"), GetController() ? *GetController()->GetName() : TEXT("None"));
+	UE_LOG(LogTemp, Warning, TEXT("Enhanced Input Component Valid: %s"), EnhancedInputComponent ? TEXT("Yes") : TEXT("No"));
+	UE_LOG(LogTemp, Warning, TEXT("Current Speed: %f"), GetVelocity().Size());
+	UE_LOG(LogTemp, Warning, TEXT("Max Walk Speed: %f"), GetCharacterMovement()->MaxWalkSpeed);
+	UE_LOG(LogTemp, Warning, TEXT("StatComponent Valid: %s"), StatComponent ? TEXT("Yes") : TEXT("No"));
+	UE_LOG(LogTemp, Warning, TEXT("-----------------------------"));
+}
+
+
+void ABasePlayer::SetEnhancedInput()
+{
+	Super::SetupPlayerInputComponent(InputComponent);
+    
+	
+}
+
 
 

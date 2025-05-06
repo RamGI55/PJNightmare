@@ -48,13 +48,18 @@ public:
 	
 	void Look(const FInputActionValue& Value);
 
-
 #pragma region RPC
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, Unreliable)
 	void Server_Sprint();
 	
-	UFUNCTION(NetMulticast, Reliable)
+	UFUNCTION(NetMulticast, Unreliable)
 	void Multi_Sprint();
+
+	UFUNCTION(Server, Unreliable)
+	void Server_StopSprint();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multi_StopSprint(); 
 	
 	UFUNCTION(Server, Reliable)
 	void ServerAiming();
@@ -92,6 +97,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable, Category = "Debugging")
+	void DebugMovementStatus();
+
+	UFUNCTION()
+	void SetEnhancedInput();
 
 public:
 
@@ -139,38 +149,8 @@ private:
 	TObjectPtr<UInputAction> LookAction;
 
 #pragma region Input
-	UPROPERTY()
-	TObjectPtr<UInputMappingContext> InputContext;
-	
-	UPROPERTY(EditAnywhere, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputMappingContext> InputMapping;
-	
-	UPROPERTY()
-	TObjectPtr<AIngamePlayerController> PlayerController; 
-		
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	UInputMappingContext* DefaultMappingContext;
-	
-	UPROPERTY()
-	TObjectPtr<UInputMappingContext> IC_Character;
 
-	UPROPERTY()
-	TObjectPtr<UInputAction> MovementAction;
 
-	UPROPERTY()
-	TObjectPtr<UInputAction> ZoomAction;
-
-	UPROPERTY()
-	TObjectPtr<UInputAction> DashAction;
-	
-	UPROPERTY()
-	TObjectPtr<UInputAction> AttackAction;
-
-	UPROPERTY()
-	TObjectPtr<UInputAction> LookingAction;
-
-	UPROPERTY()
-	TObjectPtr<UInputAction> RunningAction; 
 #pragma endregion
 
 #pragma region Components

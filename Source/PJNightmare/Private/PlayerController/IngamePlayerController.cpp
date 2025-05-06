@@ -11,20 +11,32 @@
 class UEnhancedInputLocalPlayerSubsystem;
 
 AIngamePlayerController::AIngamePlayerController()
+	:IC_DefaultContext(NULL),
+	MovingAction(NULL),
+	ZoomAction(NULL),
+	DashAction(NULL),
+	AttackAction(NULL),
+	LookingAction(NULL),
+	RunningAction(NULL)
 {
-
-	static ConstructorHelpers::FObjectFinder<UInputMappingContext> DefaultMapping(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/PJNightmare/Inputs/IMC_IngameNonAuto.IMC_IngameNonAuto'"));
-	if (DefaultMapping.Succeeded())
-	{
-		IngameDefaultMapping = DefaultMapping.Object;
-	}
+	
 }
 
 void AIngamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem=
+			LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+		{
+			if (IC_DefaultContext)
+			{
+				Subsystem->AddMappingContext(IC_DefaultContext, 0); 
+			}
+		}
+	}
 
-	PossedPawn = Cast<ABasePlayer>(GetPawn());
 }
 
 void AIngamePlayerController::Tick(float DeltaSeconds)
@@ -32,13 +44,16 @@ void AIngamePlayerController::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 }
 
-void AIngamePlayerController::GetMappings()
+void AIngamePlayerController::OnPossess(APawn* InPawn)
 {
-	// PlayerController
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(this->GetLocalPlayer()))
-	{
-		Subsystem->AddMappingContext(IngameDefaultMapping, 0);
-	}
+	Super::OnPossess(InPawn);
+
+	
+}
+
+void AIngamePlayerController::SetupInputBinding()
+{
+	
 }
 
 

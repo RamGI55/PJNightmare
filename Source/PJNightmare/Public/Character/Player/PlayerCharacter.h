@@ -3,19 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Gamemode/BaseGamemode.h"
-#include "IngameGameMode.generated.h"
+#include "Character/BaseCharacter.h"
+#include "PlayerCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PJNIGHTMARE_API AIngameGameMode : public ABaseGamemode
+class PJNIGHTMARE_API APlayerCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
-
-public:
-	AIngameGameMode();
 	
 	
 	

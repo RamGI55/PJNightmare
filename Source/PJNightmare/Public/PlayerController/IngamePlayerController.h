@@ -22,20 +22,39 @@ class PJNIGHTMARE_API AIngamePlayerController : public ABasePC
 public:
 	AIngamePlayerController();
 
-virtual void BeginPlay() override;
+	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	UFUNCTION()
-	void GetMappings(); 
+	virtual void OnPossess(APawn* InPawn) override;
+
 protected:
 	
 	/*virtual void SetupInputComponent(class UIInputComponent* PlayerInputComponent);*/
-
+	void SetupInputBinding(); 
 
 public:
-	UPROPERTY()
-	UInputMappingContext* IngameDefaultMapping; 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputMappingContext> IC_DefaultContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> MovingAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> ZoomAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> DashAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> AttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> LookingAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TObjectPtr<UInputAction> RunningAction;
+
 	
 protected:
 	UPROPERTY(EditAnywhere)
