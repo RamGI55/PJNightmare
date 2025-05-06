@@ -60,7 +60,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float MovementSpeed;
 
-	UPROPERTY(EditAnywhere)
-	ABasePlayer* PossedPawn; 
+; 
 };
 

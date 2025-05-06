@@ -5,7 +5,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Character/Player/BasePlayer.h"
+
 
 
 class UEnhancedInputLocalPlayerSubsystem;
@@ -25,7 +25,7 @@ AIngamePlayerController::AIngamePlayerController()
 void AIngamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
+	/*if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem=
 			LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
@@ -35,7 +35,7 @@ void AIngamePlayerController::BeginPlay()
 				Subsystem->AddMappingContext(IC_DefaultContext, 0); 
 			}
 		}
-	}
+	}*/
 
 }
 
@@ -47,8 +47,21 @@ void AIngamePlayerController::Tick(float DeltaSeconds)
 void AIngamePlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-
 	
+		UE_LOG(LogTemp, Warning, TEXT("OnPossess: Pawn is Ready"));
+	
+		if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem=
+				LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+			{
+				if (IC_DefaultContext)
+				{
+					Subsystem->AddMappingContext(IC_DefaultContext, 0); 
+				}
+			}
+		}
+
 }
 
 void AIngamePlayerController::SetupInputBinding()

@@ -15,9 +15,4 @@ class PJNIGHTMARE_API AIngameGameMode : public ABaseGamemode
 	GENERATED_BODY()
 
 public:
-	AIngameGameMode();
-	
-	
-	
-	
 };
