@@ -13,6 +13,9 @@
 #include "Components/EnhancedInputBaseComponent.h"
 #include "DataAssets/DataAsset_InputConfig.h"
 #include "EnhancedInputSubsystems.h"
+#include "AbilitySystem/BaseAbilitySystem.h"
+#include "Components/WidgetComponent.h"
+#include "Widget/WOverHead.h"
 
 ABasePlayerCharacter::ABasePlayerCharacter()
 {
@@ -36,6 +39,24 @@ ABasePlayerCharacter::ABasePlayerCharacter()
 	GetCharacterMovement() ->MaxWalkSpeed = 600.f;
 	GetCharacterMovement() ->bOrientRotationToMovement = true;
 	GetCharacterMovement() ->BrakingDecelerationWalking = 2000.f;
+
+	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>("OverheadWidget");
+	OverheadWidget -> SetupAttachment(GetRootComponent());
+	
+}
+
+void ABasePlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	if (AbilitySystemComponent && AbilityAttributeSet)
+	{
+		const FString ASCText = FString::Printf(TEXT("Onwer Actor : %s, AvatarActor : %s" ), *AbilitySystemComponent->GetOwner()->GetName(), *AbilitySystemComponent->GetAvatarActor()->GetName());
+		Debug::Print (TEXT("Ability System Component Vaild : ") + ASCText, FColor::Green);
+
+		Debug::Print (TEXT("AttributeSet Component Vaild : ") + ASCText,FColor::Purple); 
+	}
+
+	
 }
 
 void ABasePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -54,12 +75,12 @@ void ABasePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Move, ETriggerEvent::Triggered,this, &ThisClass::Input_Move);
 	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Look, ETriggerEvent::Triggered,this, &ThisClass::Input_Look); 
+
 }
 void ABasePlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	Debug::Print(TEXT("ABasePlayerCharacter::BeginPlay"));
-	
 }
 
 void ABasePlayerCharacter::Input_Move(const FInputActionValue& InputActionValue)

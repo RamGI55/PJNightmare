@@ -9,6 +9,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UDataAsset_InputConfig;
+class UWidgetComponent;
 struct FInputActionValue;
 /**
  * 
@@ -21,6 +22,7 @@ class PJNIGHTMARE_API ABasePlayerCharacter : public ABaseCharacter
 public:
 	ABasePlayerCharacter();
 
+	virtual void PossessedBy(AController* NewController) override;
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
@@ -35,7 +37,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> CameraBoom;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCameraComponent> Camera; 
+	TObjectPtr<UCameraComponent> Camera;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UWidgetComponent> OverheadWidget;
 #pragma endregion
 
 #pragma region Inputs
@@ -45,6 +49,9 @@ private:
 	void Input_Move(const FInputActionValue& InputActionValue);
 
 	void Input_Look (const FInputActionValue& InputActionValue);
+	
 #pragma endregion
 	
 };
+
+
