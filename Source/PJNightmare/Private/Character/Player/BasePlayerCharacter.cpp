@@ -14,6 +14,8 @@
 #include "DataAssets/DataAsset_InputConfig.h"
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystem/BaseAbilitySystem.h"
+#include "Components/WidgetComponent.h"
+#include "Widget/WOverHead.h"
 
 ABasePlayerCharacter::ABasePlayerCharacter()
 {
@@ -37,6 +39,10 @@ ABasePlayerCharacter::ABasePlayerCharacter()
 	GetCharacterMovement() ->MaxWalkSpeed = 600.f;
 	GetCharacterMovement() ->bOrientRotationToMovement = true;
 	GetCharacterMovement() ->BrakingDecelerationWalking = 2000.f;
+
+	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>("OverheadWidget");
+	OverheadWidget -> SetupAttachment(GetRootComponent());
+	
 }
 
 void ABasePlayerCharacter::PossessedBy(AController* NewController)
@@ -75,7 +81,6 @@ void ABasePlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	Debug::Print(TEXT("ABasePlayerCharacter::BeginPlay"));
-	
 }
 
 void ABasePlayerCharacter::Input_Move(const FInputActionValue& InputActionValue)

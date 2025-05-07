@@ -16,7 +16,14 @@ class PJNIGHTMARE_API UWOverHead : public UUserWidget
 	
 public:
 
-TObjectPtr<class UTextBlock> DisplayText; 	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UTextBlock> DisplayText;
+
+	void SetDisplayText(FString TextToDisplay);
+	UFUNCTION(BlueprintCallable)
+	void ShowPlayerName(APawn* Pawn);
 	
-	
+
+protected:
+	virtual void NativeDestruct() override;
 };
