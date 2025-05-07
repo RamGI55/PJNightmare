@@ -9,6 +9,6 @@ public class PJNightmare : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new string[] { "GoogleTest" });
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" ,"HeadMountedDisplay", "UMG", "Slate", "SlateCore", "OnlineSubsystem", "OnlineSubsystemSteam", "GameplayTags"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" ,"HeadMountedDisplay", "UMG", "Slate", "SlateCore", "OnlineSubsystem", "OnlineSubsystemSteam", "GameplayTags", "GameplayTasks"});
 	}
 }

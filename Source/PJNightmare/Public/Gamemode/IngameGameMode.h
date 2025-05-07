@@ -15,4 +15,5 @@ class PJNIGHTMARE_API AIngameGameMode : public ABaseGamemode
 	GENERATED_BODY()
 
 public:
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 };

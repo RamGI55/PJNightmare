@@ -13,6 +13,7 @@
 #include "Components/EnhancedInputBaseComponent.h"
 #include "DataAssets/DataAsset_InputConfig.h"
 #include "EnhancedInputSubsystems.h"
+#include "AbilitySystem/BaseAbilitySystem.h"
 
 ABasePlayerCharacter::ABasePlayerCharacter()
 {
@@ -38,6 +39,20 @@ ABasePlayerCharacter::ABasePlayerCharacter()
 	GetCharacterMovement() ->BrakingDecelerationWalking = 2000.f;
 }
 
+void ABasePlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	if (AbilitySystemComponent && AbilityAttributeSet)
+	{
+		const FString ASCText = FString::Printf(TEXT("Onwer Actor : %s, AvatarActor : %s" ), *AbilitySystemComponent->GetOwner()->GetName(), *AbilitySystemComponent->GetAvatarActor()->GetName());
+		Debug::Print (TEXT("Ability System Component Vaild : ") + ASCText, FColor::Green);
+
+		Debug::Print (TEXT("AttributeSet Component Vaild : ") + ASCText,FColor::Purple); 
+	}
+
+	
+}
+
 void ABasePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	checkf(InputConfigDataAsset, TEXT("Forgot to Assign a Vaild data asset"))
@@ -54,6 +69,7 @@ void ABasePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Move, ETriggerEvent::Triggered,this, &ThisClass::Input_Move);
 	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Look, ETriggerEvent::Triggered,this, &ThisClass::Input_Look); 
+
 }
 void ABasePlayerCharacter::BeginPlay()
 {
