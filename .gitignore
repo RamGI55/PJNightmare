@@ -75,3 +75,7 @@ DerivedDataCache/*
 
 #Builds
 Builds/*
+/Plugins/VRM4U
+/Content/WeaponPack
+/Content/GunSoundsPackVol1
+/Content/FPS_Weapon_Bundle
