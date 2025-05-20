@@ -3,8 +3,6 @@
 
 #include "Character/Player/BasePlayerCharacter.h"
 
-#include <string>
-
 #include "Debughelper.h"
 
 #include "Camera/CameraComponent.h"
@@ -17,7 +15,10 @@
 #include "DataAssets/DataAsset_InputConfig.h"
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystem/BaseAbilitySystem.h"
+#include "Components/AttackComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Weapon/BaseWeapon.h"
 #include "Widget/WOverHead.h"
 
 ABasePlayerCharacter::ABasePlayerCharacter()
@@ -38,14 +39,16 @@ ABasePlayerCharacter::ABasePlayerCharacter()
 	Camera -> SetupAttachment(CameraBoom,USpringArmComponent::SocketName);
 	Camera ->  bUsePawnControlRotation = false;
 
-	GetCharacterMovement() ->RotationRate = FRotator (0.f, 500.f ,0.f);
-	GetCharacterMovement() ->MaxWalkSpeed = 600.f;
-	GetCharacterMovement() ->bOrientRotationToMovement = true;
-	GetCharacterMovement() ->BrakingDecelerationWalking = 2000.f;
+	GetCharacterMovement()->RotationRate = FRotator (0.f, 500.f ,0.f);
+	GetCharacterMovement()->MaxWalkSpeed = 600.f;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>("OverheadWidget");
 	OverheadWidget -> SetupAttachment(GetRootComponent());
-	
+
+	AttackComponent = CreateDefaultSubobject<UAttackComponent>(TEXT("AttackComponent"));
+	AttackComponent->SetIsReplicated(true);
 }
 
 void ABasePlayerCharacter::PossessedBy(AController* NewController)
@@ -58,8 +61,14 @@ void ABasePlayerCharacter::PossessedBy(AController* NewController)
 
 		Debug::Print (TEXT("AttributeSet Component Vaild : ") + ASCText,FColor::Purple); 
 	}
+}
 
-	
+void ABasePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	// Register the overlapping weapon
+
+	DOREPLIFETIME_CONDITION(ABasePlayerCharacter, OverlappedWeapon, COND_OwnerOnly); 
 }
 
 void ABasePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -78,8 +87,8 @@ void ABasePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Move, ETriggerEvent::Triggered,this, &ThisClass::Input_Move);
 	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Look, ETriggerEvent::Triggered,this, &ThisClass::Input_Look); 
-	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Sprint, ETriggerEvent::Triggered,this, &ThisClass::Input_Run); 
-	
+	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Sprint, ETriggerEvent::Triggered,this, &ThisClass::Input_Run);
+	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Attack, ETriggerEvent::Triggered,this, &ThisClass::Input_Attack); 
 }
 void ABasePlayerCharacter::BeginPlay()
 {
@@ -108,6 +117,37 @@ void ABasePlayerCharacter::BeginPlay()
 				GetMesh()->SetAllBodiesBelowSimulatePhysics(Bone, false, false);
 				GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Bone, 0.0f);
 			}
+		}
+	}
+}
+
+void ABasePlayerCharacter::OnRep_OverlappingWeapon(ABaseWeapon* LastWeapon)
+{
+	if (IsLocallyControlled())
+	{
+		if (OverlappedWeapon)
+		{
+			OverlappedWeapon->ShowPickupWidget(true); 
+		}
+		if (LastWeapon)
+		{
+			LastWeapon->ShowPickupWidget(false); 
+		}
+	}
+}
+
+void ABasePlayerCharacter::SetOverlappingWeapon(ABaseWeapon* Weapon)
+{
+	if (OverlappedWeapon)
+	{
+		OverlappedWeapon->ShowPickupWidget(false); 
+	}
+	OverlappedWeapon = Weapon;
+	if (IsLocallyControlled())
+	{
+		if (OverlappedWeapon)
+		{
+			OverlappedWeapon->ShowPickupWidget(true); 
 		}
 	}
 }
@@ -161,5 +201,10 @@ void ABasePlayerCharacter::Input_Run(const FInputActionValue& InputActionValue)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	} 
+}
+
+void ABasePlayerCharacter::Input_Attack(const FInputActionValue& InputActionValue)
+{
+	// logic for the attack input 
 }
 #pragma endregion 

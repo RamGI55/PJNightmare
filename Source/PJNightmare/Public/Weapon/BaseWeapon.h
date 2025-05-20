@@ -40,10 +40,16 @@ class PJNIGHTMARE_API ABaseWeapon : public AActor
 public:	
 	ABaseWeapon();
 
+	UFUNCTION()
+	void ShowPickupWidget(bool bShowWidget); 
+	
+
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
 
 protected:
 	virtual void BeginPlay() override;
+
+	
 
 	UFUNCTION()
 	virtual void OnSphereOverlap(

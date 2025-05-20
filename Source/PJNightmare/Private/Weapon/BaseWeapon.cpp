@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Weapon/BaseWeapon.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
@@ -28,8 +27,7 @@ ABaseWeapon::ABaseWeapon()
 	AreaSphere->SetupAttachment(RootComponent);
 	AreaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-
+	
 	// Widget Construction
 	WeaponPickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
 	WeaponPickupWidget->SetupAttachment(RootComponent);
@@ -37,8 +35,15 @@ ABaseWeapon::ABaseWeapon()
 	{
 		WeaponPickupWidget->SetVisibility(false); 
 	}
-	
 		
+}
+
+void ABaseWeapon::ShowPickupWidget(bool bShowWidget)
+{
+	if (WeaponPickupWidget)
+	{
+		WeaponPickupWidget->SetVisibility(bShowWidget); 
+	}
 }
 
 void ABaseWeapon::BeginPlay()
@@ -50,6 +55,7 @@ void ABaseWeapon::BeginPlay()
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ABaseWeapon::OnSphereOverlap);
+		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &ABaseWeapon::OnSphereOverlapEnd); 
 
 		// only check in the server. 
 	}
@@ -61,9 +67,9 @@ void ABaseWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
 {
 	TObjectPtr<ABasePlayerCharacter> PlayerCharacter = Cast<ABasePlayerCharacter>(OtherActor);
-	if (PlayerCharacter && WeaponPickupWidget)
+	if (PlayerCharacter)
 	{
-		WeaponPickupWidget->SetVisibility(true); 
+		PlayerCharacter->SetOverlappingWeapon(this); 
 	}
 }
 
@@ -73,7 +79,7 @@ void ABaseWeapon::OnSphereOverlapEnd(UPrimitiveComponent* OverlappedComponent, A
 	TObjectPtr<ABasePlayerCharacter> PlayerCharacter = Cast<ABasePlayerCharacter>(OtherActor);
 	if (PlayerCharacter && WeaponPickupWidget)
 	{
-		WeaponPickupWidget->SetVisibility(false);
+		PlayerCharacter->SetOverlappingWeapon(nullptr); 
 	} 
 }
 
