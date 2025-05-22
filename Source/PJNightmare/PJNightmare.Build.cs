@@ -27,9 +27,8 @@ public class PJNightmare : ModuleRules
 			"GameplayTags", 
 			"GameplayTasks",
 			"VRM4U",
-			"VRM4ULoader", 
-			"VRM4UImporter",
-			"VRM4UEditor",
+			"VRM4ULoader",
+			//"VRM4UEditor"
 			
 		});
 	}
