@@ -15,6 +15,7 @@
 #include "DataAssets/DataAsset_InputConfig.h"
 #include "EnhancedInputSubsystems.h"
 #include "VrmAnimInstance.h"
+
 #include "AbilitySystem/BaseAbilitySystem.h"
 #include "Components/AttackComponent.h"
 #include "Components/WidgetComponent.h"
@@ -67,10 +68,7 @@ void ABasePlayerCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	if (AbilitySystemComponent && AbilityAttributeSet)
 	{
-		const FString ASCText = FString::Printf(TEXT("Onwer Actor : %s, AvatarActor : %s" ), *AbilitySystemComponent->GetOwner()->GetName(), *AbilitySystemComponent->GetAvatarActor()->GetName());
-		Debug::Print (TEXT("Ability System Component Vaild : ") + ASCText, FColor::Green);
-
-		Debug::Print (TEXT("AttributeSet Component Vaild : ") + ASCText,FColor::Purple); 
+		
 	}
 }
 
@@ -105,17 +103,52 @@ void ABasePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 void ABasePlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	Debug::Print(TEXT("ABasePlayerCharacter::BeginPlay"));
-	isRuninServer = HasAuthority();
+	// Debug each part separately
+	Debug::Print(FString::Printf(TEXT("HasAuthority: %s"), 
+		HasAuthority() ? TEXT("TRUE") : TEXT("FALSE")), FColor::White);
+    
 	if (!HasAuthority())
 	{
-		UVrmAnimInstance* VrmAnimInstance = Cast<UVrmAnimInstance>(GetMesh()->GetAnimInstance());
-		if (VrmAnimInstance)
+		Debug::Print("Authority check passed - this is a client", FColor::Yellow);
+        
+		USkeletalMeshComponent* SkeletalMeshComp = GetMesh();
+		if (SkeletalMeshComp)
 		{
-			VrmAnimInstance->MetaObject = nullptr;
-			Debug::Print(TEXT("VRM Disabled on the Client"), FColor::Red);  
+			Debug::Print("Mesh exists", FColor::Green);
+            
+			UAnimInstance* AnimInst = SkeletalMeshComp->GetAnimInstance();
+			if (AnimInst)
+			{
+				Debug::Print(FString::Printf(TEXT("AnimInstance class: %s"), 
+					*AnimInst->GetClass()->GetName()), FColor::Blue);
+                
+				UVrmAnimInstance* VrmAnim = Cast<UVrmAnimInstance>(AnimInst);
+				if (VrmAnim)
+				{
+					Debug::Print("VRM AnimInstance found!", FColor::Green);
+					VrmAnim->MetaObject = nullptr;
+					Debug::Print("VRM Disabled on Client", FColor::Red);
+				}
+				else
+				{
+					Debug::Print("VRM AnimInstance cast FAILED", FColor::Red);
+				}
+			}
+			else
+			{
+				Debug::Print("No AnimInstance found", FColor::Red);
+			}
+		}
+		else
+		{
+			Debug::Print("No Mesh found", FColor::Red);
 		}
 	}
+	else
+	{
+		Debug::Print("This is SERVER - VRM should run normally", FColor::Green);
+	}
+
 }
 
 void ABasePlayerCharacter::OnRep_OverlappingWeapon(ABaseWeapon* LastWeapon)
