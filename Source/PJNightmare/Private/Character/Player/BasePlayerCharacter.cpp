@@ -14,17 +14,20 @@
 #include "Components/EnhancedInputBaseComponent.h"
 #include "DataAssets/DataAsset_InputConfig.h"
 #include "EnhancedInputSubsystems.h"
+#include "VrmAnimInstance.h"
 #include "AbilitySystem/BaseAbilitySystem.h"
 #include "Components/AttackComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/BaseWeapon.h"
+
+
 #include "Widget/WOverHead.h"
 
 ABasePlayerCharacter::ABasePlayerCharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
-
+	
 	bUseControllerRotationPitch = true;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
@@ -49,6 +52,14 @@ ABasePlayerCharacter::ABasePlayerCharacter()
 
 	AttackComponent = CreateDefaultSubobject<UAttackComponent>(TEXT("AttackComponent"));
 	AttackComponent->SetIsReplicated(true);
+
+	// In constructor:
+	bReplicates = true;
+	bAlwaysRelevant = true;
+	SetReplicatingMovement(true);
+
+	// Ensure consistent transform updates
+	GetRootComponent()->SetMobility(EComponentMobility::Movable);
 }
 
 void ABasePlayerCharacter::PossessedBy(AController* NewController)
@@ -68,7 +79,8 @@ void ABasePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	// Register the overlapping weapon
 
-	DOREPLIFETIME_CONDITION(ABasePlayerCharacter, OverlappedWeapon, COND_OwnerOnly); 
+	DOREPLIFETIME_CONDITION(ABasePlayerCharacter, OverlappedWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(ABasePlayerCharacter, isRuninServer); 
 }
 
 void ABasePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -94,29 +106,14 @@ void ABasePlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	Debug::Print(TEXT("ABasePlayerCharacter::BeginPlay"));
-
-	// Get Array of all bone names
-	TArray<FName> BoneNames;
-	GetMesh()->GetBoneNames(BoneNames);
-
-	// hair, 
-	for (const FName& Bone : BoneNames)
+	isRuninServer = HasAuthority();
+	if (!HasAuthority())
 	{
-		FString BoneNameStr = Bone.ToString();
-		if (BoneNameStr.Contains(TEXT("HairJoint")))
+		UVrmAnimInstance* VrmAnimInstance = Cast<UVrmAnimInstance>(GetMesh()->GetAnimInstance());
+		if (VrmAnimInstance)
 		{
-			if (HasAuthority())
-			{
-				// Enable physics on server only
-				GetMesh()->SetAllBodiesBelowSimulatePhysics(Bone, true, true);
-				GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Bone, 1.0f);
-			}
-			else 
-			{
-				// Disable physics on clients
-				GetMesh()->SetAllBodiesBelowSimulatePhysics(Bone, false, false);
-				GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Bone, 0.0f);
-			}
+			VrmAnimInstance->MetaObject = nullptr;
+			Debug::Print(TEXT("VRM Disabled on the Client"), FColor::Red);  
 		}
 	}
 }
@@ -207,4 +204,18 @@ void ABasePlayerCharacter::Input_Attack(const FInputActionValue& InputActionValu
 {
 	// logic for the attack input 
 }
-#pragma endregion 
+#pragma endregion
+
+void ABasePlayerCharacter::tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+    
+	if (!HasAuthority())
+	{
+		FRotator CharRot = GetActorRotation();
+		FRotator ControlRot = GetControlRotation();
+        
+		Debug::Print(FString::Printf(TEXT("Char Yaw: %.2f | Control Yaw: %.2f"), 
+			CharRot.Yaw, ControlRot.Yaw), FColor::Cyan);
+	}
+}

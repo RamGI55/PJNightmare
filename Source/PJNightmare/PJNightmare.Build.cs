@@ -6,9 +6,31 @@ public class PJNightmare : ModuleRules
 {
 	public PJNightmare(ReadOnlyTargetRules Target) : base(Target)
 	{
-		PrivateDependencyModuleNames.AddRange(new string[] { "GoogleTest" });
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"GoogleTest",
+			"VRM4UCapture"
+		});
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" ,"HeadMountedDisplay", "UMG", "Slate", "SlateCore", "OnlineSubsystem", "OnlineSubsystemSteam", "GameplayTags", "GameplayTasks"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"EnhancedInput" ,
+			"HeadMountedDisplay", 
+			"UMG", 
+			"Slate", 
+			"SlateCore", 
+			"OnlineSubsystem", 
+			"OnlineSubsystemSteam", 
+			"GameplayTags", 
+			"GameplayTasks",
+			"VRM4U",
+			"VRM4ULoader", 
+			"VRM4UImporter",
+			"VRM4UEditor",
+			
+		});
 	}
 }

@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Character/BaseCharacter.h"
+#include "Debughelper.h" 
 #include "BasePlayerCharacter.generated.h"
+
 
 class UAttackComponent;
 class ABaseWeapon;
@@ -27,6 +29,8 @@ public:
 
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void tick(float DeltaTime) ; 
 	
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
@@ -55,7 +59,12 @@ private:
 	TObjectPtr<ABaseWeapon> OverlappedWeapon;
 
 	UPROPERTY()
-	TObjectPtr<UAttackComponent> AttackComponent; 
+	TObjectPtr<UAttackComponent> AttackComponent;
+
+	// for VRM Setting, using this variable to control VRM physiscs setting. 
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Authority Setting", meta=(AllowPrivateAccess = "true"))
+	bool isRuninServer;
+	
 #pragma endregion
 
 #pragma region Inputs
@@ -66,10 +75,12 @@ private:
 	void Input_Look (const FInputActionValue& InputActionValue);
 	void Input_Run (const FInputActionValue& InputActionValue);
 	void Input_Attack (const FInputActionValue& InputActionValue); 
-	
+
 	
 #pragma endregion
 	
 };
+
+
 
 
