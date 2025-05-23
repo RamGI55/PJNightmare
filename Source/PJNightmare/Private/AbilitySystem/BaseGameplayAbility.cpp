@@ -4,6 +4,7 @@
 #include "AbilitySystem/BaseGameplayAbility.h"
 
 #include "AbilitySystemComponent.h"
+#include "Components/AttackComponent.h"
 #include "Engine/SpecularProfile.h"
 
 
@@ -32,4 +33,9 @@ void UBaseGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 		{
 			ActorInfo->AbilitySystemComponent->ClearAbility(Handle);
 		}
+}
+
+UAttackComponent* UBaseGameplayAbility::GetAttackComponentFromActorInfo() const
+{
+	return GetAvatarActorFromActorInfo()->FindComponentByClass<UAttackComponent>();
 }

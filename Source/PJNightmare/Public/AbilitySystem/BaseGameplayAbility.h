@@ -31,4 +31,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Player Ability")
 	EBasePlayerActiviationPolicy PlayerActivationPolicy = EBasePlayerActiviationPolicy::OnTriggered;
 	
+	UFUNCTION(BlueprintCallable, Category="Ability")
+	UAttackComponent* GetAttackComponentFromActorInfo() const; 
 };

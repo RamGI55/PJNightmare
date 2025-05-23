@@ -7,11 +7,6 @@
 
 APJNightmareGameMode::APJNightmareGameMode()
 {
-	// set default pawn class to our Blueprinted character
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Script/CoreUObject.Class'/Script/PJNightmare.BasePlayer'"));
-	if (PlayerPawnBPClass.Class != NULL)
-	{
-		DefaultPawnClass = PlayerPawnBPClass.Class;
-	}
+	
 
 }

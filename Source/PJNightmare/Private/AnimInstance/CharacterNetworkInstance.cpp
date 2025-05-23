@@ -1,5 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+// DEPRECATED - doesn't work for now, switch to the component system. 
 
 #include "AnimInstance/CharacterNetworkInstance.h"
 #include "GameFramework/Pawn.h"

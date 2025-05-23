@@ -98,7 +98,9 @@ void ABasePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Move, ETriggerEvent::Triggered,this, &ThisClass::Input_Move);
 	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Look, ETriggerEvent::Triggered,this, &ThisClass::Input_Look); 
 	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Sprint, ETriggerEvent::Triggered,this, &ThisClass::Input_Run);
-	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Attack, ETriggerEvent::Triggered,this, &ThisClass::Input_Attack); 
+	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Attack, ETriggerEvent::Triggered,this, &ThisClass::Input_Attack);
+	BaseInputComponent->BindNativeInputAction(InputConfigDataAsset, PJNMGamplayTags::InputTag_Action, ETriggerEvent::Triggered,this, &ThisClass::Input_Action); 
+	
 }
 void ABasePlayerCharacter::BeginPlay()
 {
@@ -236,6 +238,15 @@ void ABasePlayerCharacter::Input_Run(const FInputActionValue& InputActionValue)
 void ABasePlayerCharacter::Input_Attack(const FInputActionValue& InputActionValue)
 {
 	// logic for the attack input 
+}
+
+
+void ABasePlayerCharacter::Input_Action(const FInputActionValue& InputActionValue)
+{
+	if (HasAuthority())
+	{
+		
+	}
 }
 #pragma endregion
 
