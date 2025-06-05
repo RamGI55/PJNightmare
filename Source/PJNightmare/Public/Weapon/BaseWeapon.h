@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "BaseWeapon.generated.h"
 
+class UWidgetComponent;
 class USkeletalMeshComponent;
 class USphereComponent;
 UENUM(Blueprintable)
@@ -38,8 +39,36 @@ class PJNIGHTMARE_API ABaseWeapon : public AActor
 	
 public:	
 	ABaseWeapon();
+
+	UFUNCTION()
+	void ShowPickupWidget(bool bShowWidget); 
+	
+
+	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
+
 protected:
 	virtual void BeginPlay() override;
+
+	
+
+	UFUNCTION()
+	virtual void OnSphereOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& Hit
+	);
+
+	// need the function for overlap has been ended.
+	UFUNCTION()
+	virtual void OnSphereOverlapEnd(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	); 
 private:
 	
 public:	
@@ -59,7 +88,10 @@ private:
 	EWeaponState WeaponState;
 
 	UPROPERTY(EditAnywhere, Blueprintable)
-	EWeaponClassification WeaponClass; 
+	EWeaponClassification WeaponClass;
+
+	UPROPERTY(EditAnywhere, Blueprintable, Category = "Widget")
+	TObjectPtr<UWidgetComponent> WeaponPickupWidget;	
 	
 	
 };
