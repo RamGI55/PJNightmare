@@ -78,9 +78,7 @@ private:
 	void Input_Run (const FInputActionValue& InputActionValue);
 	void Input_Attack (const FInputActionValue& InputActionValue);
 	void Input_Action(const FInputActionValue& InputActionValue);
-	
 
-	
 #pragma endregion
 	
 };
