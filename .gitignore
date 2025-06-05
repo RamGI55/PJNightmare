@@ -75,3 +75,6 @@ DerivedDataCache/*
 
 #Builds
 Builds/*
+/Content/FPS_Weapon_Bundle
+/Content/GunSoundsPackVol1
+/Content/WeaponPack
