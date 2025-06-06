@@ -9,7 +9,7 @@ void AIngameGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 	int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
-	if (NumOfPlayers == 2) // Hardcoded for Testing.
+	if (NumOfPlayers == 2) // TODO: Hardcoded for Testing. - must set as larger number than this.
 	{
 		UWorld* World = GetWorld();
 		if (World)
