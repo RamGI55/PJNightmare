@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "DataAsset_Startupdata.generated.h"
 
+class UBaseAbilitySystem;
 class UPlayerGameplayAbility;
 /**
  * 
@@ -16,13 +17,14 @@ class PJNIGHTMARE_API UDataAsset_Startupdata : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	
+	virtual void GiveToAbilitySystemComponent(UBaseAbilitySystem* InPlayerASCToGive, int32 ApplyLevel =1);
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "StartupData")
 	TArray<TSubclassOf<UPlayerGameplayAbility>> ActivateOnGivenAbilities;
 
 	UPROPERTY(EditDefaultsOnly, Category = "StartupData")
 	TArray<TSubclassOf<UPlayerGameplayAbility>> ReactiveAbilities;
-	
+
+	void GrantAbilities(const TArray<TSubclassOf<UPlayerGameplayAbility>>& InAbilitiesToGive,UBaseAbilitySystem* InPlayerASCToGive, int32 ApplyLevel =1 );
 	
 };

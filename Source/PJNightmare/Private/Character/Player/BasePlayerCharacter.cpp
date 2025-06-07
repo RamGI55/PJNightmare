@@ -69,6 +69,8 @@ void ABasePlayerCharacter::PossessedBy(AController* NewController)
 	if (AbilitySystemComponent && AbilityAttributeSet)
 	{
 		
+		Debug::Print(TEXT("Ability system component vaild"),FColor::Green);
+		Debug::Print(TEXT("Atrribute Set Vaild"),FColor::Green);
 	}
 }
 
