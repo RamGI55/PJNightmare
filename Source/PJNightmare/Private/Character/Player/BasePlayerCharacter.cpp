@@ -19,6 +19,7 @@
 #include "AbilitySystem/BaseAbilitySystem.h"
 #include "Components/AttackComponent.h"
 #include "Components/WidgetComponent.h"
+#include "DataAssets/Player/Shiho/DataAsset_Startupdata.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/BaseWeapon.h"
 
@@ -66,11 +67,13 @@ ABasePlayerCharacter::ABasePlayerCharacter()
 void ABasePlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	if (AbilitySystemComponent && AbilityAttributeSet)
+	
+	if (!CharacterStartUpdata.IsNull())
 	{
-		
-		Debug::Print(TEXT("Ability system component vaild"),FColor::Green);
-		Debug::Print(TEXT("Atrribute Set Vaild"),FColor::Green);
+		if (UDataAsset_Startupdata* LoadedData = CharacterStartUpdata.LoadSynchronous())
+		{
+			LoadedData->GiveToAbilitySystemComponent(AbilitySystemComponent);
+		}
 	}
 }
 

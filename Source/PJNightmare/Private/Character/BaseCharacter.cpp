@@ -4,6 +4,7 @@
 #include "Character/BaseCharacter.h"
 #include "AbilitySystem/BaseAbilitySystem.h"
 #include "AbilitySystem/BaseAbilityAttributeSet.h"
+#include "DataAssets/Player/Shiho/DataAsset_Startupdata.h"
 
 
 // Sets default values
@@ -17,7 +18,7 @@ ABaseCharacter::ABaseCharacter()
 
 	AbilitySystemComponent = CreateDefaultSubobject<UBaseAbilitySystem>(TEXT("BaseAbilitySystem"));
 
-	AbilityAttributeSet = CreateDefaultSubobject<UBaseAbilityAttributeSet>(TEXT("BaseAttributeSet"));
+	AbilityAttributeSet = CreateDefaultSubobject<UBaseAbilityAttributeSet>(TEXT("BaseAttributeSet"));;
 }
 
 UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
@@ -30,6 +31,11 @@ void ABaseCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	if (AbilitySystemComponent)
 	{
-		AbilitySystemComponent->InitAbilityActorInfo(this, this); // Owner Actor might be different from the Actor itself! 
+		AbilitySystemComponent->InitAbilityActorInfo(this, this); // Owner Actor might be different from the Actor itself!
+
+		//ensure(!CharacterStartUpdata.IsNull());
+		ensureMsgf(!CharacterStartUpdata.IsNull(), TEXT ("Forgot to assign start up data to %s"),*GetName());
+		
 	}
+
 }

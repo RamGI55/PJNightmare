@@ -7,6 +7,7 @@
 #include "AbilitysystemInterface.h"
 #include "BaseCharacter.generated.h"
 
+class UDataAsset_Startupdata;
 class UBaseAbilitySystem;
 class UBaseAbilityAttributeSet;
 UCLASS()
@@ -33,6 +34,9 @@ protected:
 
 	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category= "AbilitySystem", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBaseAbilityAttributeSet> AbilityAttributeSet;
+
+	UPROPERTY (EditDefaultsOnly, BlueprintReadOnly, Category ="CHaracterData")
+	TSoftObjectPtr<UDataAsset_Startupdata> CharacterStartUpdata; 
 public:
 
 	
